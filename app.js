@@ -8,11 +8,19 @@ const accountRouter = require('./routes/accounts');
 
 const app = express();
 
-app.set('json spaces', 2)
+const isDevelopment = process.env.NODE_ENV === 'development';
+const isTest = process.env.NODE_ENV === 'test';
 
-mongoose.connect('mongodb://localhost:27017/ethereum_api')
+app.set('json spaces', 2);
 
-app.use(logger('dev'));
+if (isDevelopment) {
+	mongoose.connect('mongodb://localhost:27017/ethereum_api');
+	app.use(logger('dev'));
+}
+if (isTest) {
+	mongoose.connect('mongodb://localhost:27017/ethereum_api_test');
+}
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 

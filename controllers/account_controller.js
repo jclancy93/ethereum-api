@@ -1,6 +1,6 @@
 const request = require('request-promise-native');
 const mongoose = require('mongoose');
-const ObjectId = mongoose.Types.ObjectId
+const ObjectId = mongoose.Types.ObjectId;
 const asyncMiddleware = require('./../helpers/async').asyncMiddleware;
 const EthereumHelper = require('./../helpers/ethereum');
 
@@ -15,7 +15,7 @@ exports.initializeAccount = asyncMiddleware(async (req, res, next) => {
 	const address = req.params.account;
 
 	if (!EthereumHelper.isAddress(address)) {
-		return res.json({error: 'Not a valid address'});
+		return res.status(500).send({error: 'Not a valid address'});
 	}
 
 	const accountExists = await Account.find({ address });
@@ -24,7 +24,7 @@ exports.initializeAccount = asyncMiddleware(async (req, res, next) => {
 		return res.json({message: 'Account already stored'});
 	}
 
-	const apiUrl = "https://api.etherscan.io/api/?module=account";
+	const apiUrl = 'https://api.etherscan.io/api/?module=account';
 	const accountApiEndpoint = `${apiUrl}&action=balance&address=${address}`;
 
 	// Note: This will only get last 10,000 transactions
@@ -43,7 +43,6 @@ exports.initializeAccount = asyncMiddleware(async (req, res, next) => {
 		transactions: transactionIds,
 		balance
 	};
-	console.log(accountDocument);
 	const account = await Account.create(accountDocument);
 
 	return res.json({message: 'Account stored'});
@@ -54,7 +53,7 @@ exports.getTransactions = asyncMiddleware( async (req, res, next) => {
 	const address = req.params.account;
 
 	if (!EthereumHelper.isAddress(address)) {
-		return res.json({error: 'Not a valid address'});
+		return res.status(500).send({error: 'Not a valid address'});
 	}
 
 	// Building Mongoose query from querystring
@@ -67,33 +66,32 @@ exports.getTransactions = asyncMiddleware( async (req, res, next) => {
 	];
 	for(var key in req.query) { 
 
-	  // Check for minBlock and filter by blocks >
-	  if (key === "minBlock") {
-	  	if (query.blockNumber) {
-	  		query.blockNumber.$gt = req.query[key];
-	  		continue;
-	  	} else {
-	  		query.blockNumber = {};
-	  		query.blockNumber.$gt = req.query[key];
-	  		continue;
-	  	}
-	  }
+		// Check for minBlock and filter by blocks >
+		if (key === 'minBlock') {
+			if (query.blockNumber) {
+				query.blockNumber.$gt = req.query[key];
+				continue;
+			} else {
+				query.blockNumber = {};
+				query.blockNumber.$gt = req.query[key];
+				continue;
+			}
+		}
 
-	  // Check for maxBlock and filter by blocks <
-  	  if (key === "maxBlock") {
-	  	if (query.blockNumber) {
-	  		query.blockNumber.$lt = req.query[key];
-	  		continue;
-	  	} else {
-	  		query.blockNumber = {};
-	  		query.blockNumber.$lt = req.query[key];
-	  		continue;
-	  	}
-	  }
+		// Check for maxBlock and filter by blocks <
+		if (key === 'maxBlock') {
+			if (query.blockNumber) {
+				query.blockNumber.$lt = req.query[key];
+				continue;
+			} else {
+				query.blockNumber = {};
+				query.blockNumber.$lt = req.query[key];
+				continue;
+			}
+		}
 
-	  query[key] = req.query[key];
+		query[key] = req.query[key];
 	}
-	console.log(query)
 
 	const transactions = await Transaction.find(query);
 
@@ -105,10 +103,10 @@ exports.getAccountInfomation = asyncMiddleware(async (req, res, next) => {
 	const address = req.params.account;
 
 	if (!EthereumHelper.isAddress(address)) {
-		return res.json({error: 'Not a valid address'});
+		return res.status(500).send({error: 'Not a valid address'});
 	}
 
 	const account = await Account.find({ address });
 
-	return res.json({ data: account })
+	return res.json({ data: account });
 });

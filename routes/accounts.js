@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const AccountController = require('../controllers/account_controller.js')
+const AccountController = require('../controllers/account_controller.js');
 
 
 /* GET store associated account information in database */
